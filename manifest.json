@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "课序助手 · 自动续播与跳过测验",
+  "description": "正常速度续播课程视频，完成后切换下一节；跳过测验，支持手动标记页面控件。",
+  "version": "1.0.1",
+  "minimum_chrome_version": "120",
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": ["https://*.chaoxing.com/*", "http://*.chaoxing.com/*"],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "课序助手" },
+  "content_scripts": [{
+    "matches": ["https://*.chaoxing.com/*", "http://*.chaoxing.com/*"],
+    "js": ["core.js", "agent.js"],
+    "all_frames": true,
+    "match_origin_as_fallback": true,
+    "run_at": "document_idle"
+  }]
+}

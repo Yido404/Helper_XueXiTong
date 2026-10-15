@@ -1,0 +1,15 @@
+# Signing credentials must stay local.
+*.pem
+*.key
+.env
+.env.*
+
+# Local tests, browser profiles and generated packages.
+node_modules/
+work/
+profile-*/
+*.crx
+*.zip
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>课序助手</title><link rel="stylesheet" href="popup.css"></head>
+<body><header><div class="brand">CF <span>课序助手</span></div><p>视频自动续播，题目交给以后。</p></header>
+<main><section class="status"><span id="dot"></span><div><strong id="headline">正在连接课程页…</strong><p id="detail">所有操作都在当前标签页进行</p></div></section>
+<label class="mute"><input id="muted" type="checkbox" checked>自动播放时静音 <small>可减少浏览器的自动播放限制</small></label>
+<div class="actions"><button id="start" class="primary">开始当前课程</button><button id="stop">停止</button></div>
+<button id="authorize" class="authorize" hidden>启用当前网站</button>
+<section><h2>识别不准？提前标记</h2><p class="hint">选择一种控件，然后在网页里点击它。标记时暂停运行，Esc 取消。</p>
+<div class="grid"><button data-role="video">① 播放器</button><button data-role="play">② 播放按钮</button><button data-role="next">③ 下一节</button><button data-role="done">④ 完成提示</button><button data-role="quiz">⑤ 题目区域</button><button data-role="skip">⑥ 跳过／关闭</button></div>
+<p class="hint">“完成提示”请点任务点状态文字。“跳过／关闭”只在识别到题目时使用。没有跳过按钮时，会离开题目所在章节。</p>
+<button id="clear" class="link">清除当前页面标记</button></section>
+<details><summary>最近操作</summary><ol id="logs"></ol></details>
+<footer>题目不会被填写或提交，跳过后仍可能显示未完成。<br>默认适配学习通；其他网站需启用并手动标记。</footer></main>
+<script src="popup.js"></script></body></html>
