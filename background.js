@@ -44,6 +44,14 @@ async function processReport(id, snapshot, sender) {
   }
   frames.set(id, entries);
   if (!state.running) return { enabled: false };
+  const emptyFrame = C.emptyLessonFrame([...entries.values()]);
+  const emptyKey = emptyFrame ? `${signature}\nempty:${emptyFrame.frameId}:${emptyFrame.page}` : '';
+  if (!emptyKey || state.emptyCandidate?.key !== emptyKey) {
+    if (emptyKey || state.emptyCandidate) {
+      state.emptyCandidate = emptyKey ? { key: emptyKey, since: now } : null;
+      await save(id, state);
+    }
+  }
   if (state.pendingNavigation && signature !== state.pendingNavigation.signature) {
     state.pendingNavigation = null;
     state.settleUntil = now + 4500;
@@ -86,7 +94,7 @@ async function processReport(id, snapshot, sender) {
       state.progressAt = now;
       await save(id, state);
     }
-    const result = await chrome.tabs.sendMessage(id, { cf: true, cmd: 'act', action: decision.type, page: frame.page, muted: state.muted, hasQuiz: [...entries.values()].some(f => f.quiz), allowConfirmNext: decision.type === 'confirmNext' }, { documentId: frame.documentId });
+    const result = await chrome.tabs.sendMessage(id, { cf: true, cmd: 'act', action: decision.type, page: frame.page, muted: state.muted, hasQuiz: [...entries.values()].some(f => f.quiz), allowConfirmNext: decision.type === 'confirmNext', emptyLesson: Boolean(decision.emptyLesson), emptyInThisFrame: emptyFrame?.frameId === frame.frameId }, { documentId: frame.documentId });
     if (result?.ok) {
       if (decision.type === 'next') {
         state.switches++;
@@ -95,10 +103,15 @@ async function processReport(id, snapshot, sender) {
         frames.set(id, new Map());
       }
       log(state, decision.reason);
+    } else if (result?.retry) {
+      state.pendingNavigation = null; state.emptyCandidate = null;
+      state.settleUntil = now + 4500; state.progressAt = now;
+      state.status = result.reason || '章节内容已变化，重新检查页面';
     } else {
       state.running = false;
       state.status = result?.reason || '控件未响应，请检查页面或重新标记';
       state.pendingNavigation = null;
+      state.emptyCandidate = null;
       log(state, state.status);
       await enableAgents(id, false);
     }
@@ -137,6 +150,7 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
       if (!top?.url || !/^https?:/.test(top.url)) throw new Error('请先打开并授权课程网页');
       state.running = true; state.scope = C.scopeKey(top.url); state.page = top.page;
       state.pendingNavigation = null;
+      state.emptyCandidate = null;
       state.muted = message.muted ?? state.muted; state.lastAction = 0; state.settleUntil = Date.now() + 4500;
       state.status = '正在识别课程'; state.progressAt = Date.now(); state.positions = ''; log(state, '开始当前课程');
       frames.set(id, new Map()); await save(id, state); await enableAgents(id, true); await publish(id, state); return state;

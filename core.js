@@ -19,6 +19,12 @@
   function safeNavigationText(value) {
     return !/提交|交卷|答案|支付|购买|删除|确认|submit|purchase|delete/i.test(tidy(value));
   }
+  function emptyLessonFrame(frames) {
+    const top = frames.find(f => f.frameId === 0);
+    if (!top || frames.some(f => f.video || f.quiz || f.canPlay || f.hasMedia || f.loading)) return null;
+    if (top.emptyContent) return top;
+    return frames.find(f => f.emptyContent && top.lessonFrameUrls?.includes(f.page)) || null;
+  }
   function decide(state, frames, now = Date.now()) {
     if (!state.running) return { type: 'idle', reason: state.status || '已停止' };
     const fresh = frames.filter(f => now - f.seenAt < 7500);
@@ -54,6 +60,12 @@
       return next ? { type: 'next', frameId: next.frameId, reason: '任务完成，进入下一节' }
         : { type: 'stop', reason: '当前任务已完成，未找到下一节（可能已到课程末尾）' };
     }
+    if (emptyLessonFrame(fresh)) {
+      if (!state.emptyCandidate || now - state.emptyCandidate.since < 8000) return { type: 'wait', reason: '检测到暂无内容，等待确认章节已加载' };
+      const next = fresh.find(f => f.canNext);
+      return next ? { type: 'next', frameId: next.frameId, emptyLesson: true, reason: '当前章节暂无内容，进入下一节' }
+        : { type: 'stop', reason: '当前章节暂无内容，未找到下一节（可能已到课程末尾）' };
+    }
     const paused = videos.find(f => f.video.paused && !f.video.ended && !f.video.error);
     if (paused) return { type: 'play', frameId: paused.frameId, reason: '继续播放视频' };
     if (videos.some(f => f.video.error)) return { type: 'wait', reason: '视频加载失败，请检查页面或网络' };
@@ -70,7 +82,7 @@
     const n = Math.max(0, Math.floor(seconds));
     return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`;
   }
-  const api = { tidy, pageKey, scopeKey, completeText, safeNavigationText, decide, formatTime };
+  const api = { tidy, pageKey, scopeKey, completeText, safeNavigationText, emptyLessonFrame, decide, formatTime };
   root.CourseFlowCore = api;
   if (typeof module !== 'undefined') module.exports = api;
 })(globalThis);

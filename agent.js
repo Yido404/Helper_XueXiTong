@@ -97,6 +97,23 @@
     if (query('[role="dialog"]').some(n => /人脸识别|安全验证|重新登录|登录已过期/.test(n.textContent))) return '页面要求身份验证或重新登录，请手动处理';
     return '';
   }
+  const outsideLesson = 'aside,nav,header,footer,[role="navigation"],[role="complementary"],[role="dialog"],form,#content1,[data-course-flow-ui],[class*="comment" i],[id*="comment" i],[class*="discuss" i],[id*="discuss" i]';
+  function lessonScope() {
+    return document.querySelector('#pageDiv') || document.querySelector('main,article,[role="main"]') || document.body;
+  }
+  function lessonNodes(selector) {
+    const scope = lessonScope();
+    return scope ? [...(scope.matches(selector) && visible(scope) ? [scope] : []), ...query(selector, scope)].filter(n => !n.closest(outsideLesson)) : [];
+  }
+  function emptyContent() {
+    return lessonNodes('p,span,div,section').some(n => n.children.length < 4 && !n.querySelector(outsideLesson) && /^暂无内容[。.!！]?$/.test(C.tidy(n.textContent)));
+  }
+  function hasMedia() {
+    return lessonNodes('video,audio,object,embed,.video-js,[data-player],iframe[src*="video" i],iframe[src*="audio" i]').length > 0;
+  }
+  function loading() {
+    return document.readyState !== 'complete' || lessonNodes('[aria-busy="true"],[role="progressbar"],.loading,.loader,.el-loading-mask,.ant-spin-spinning').length > 0;
+  }
   function snapshot() {
     const page = C.pageKey(location.href);
     if (page !== lastPage) { videoProgress = { node: null, time: -1, at: Date.now() }; lastPage = page; }
@@ -116,6 +133,8 @@
       canNext: Boolean(nextButton()), canPlay: Boolean(playButton()),
       canSkipQuiz: Boolean(marked('skip')),
       canConfirmNext: Boolean(incompleteNavigationButton()),
+      emptyContent: emptyContent(), hasMedia: hasMedia(), loading: loading(),
+      lessonFrameUrls: topFrame ? lessonNodes('iframe[src]').map(n => { try { return C.pageKey(n.src); } catch { return ''; } }).filter(Boolean) : [],
       videoCount: marked('video') ? 1 : query('video').length,
       video: video ? { time: video.currentTime, duration: Number.isFinite(video.duration) ? video.duration : null, source: video.currentSrc || video.src, paused: video.paused, ended: video.ended, error: Boolean(video.error) } : null
     };
@@ -125,6 +144,9 @@
     if (C.pageKey(location.href) !== message.page) return { ok: false, reason: '页面已变化，请重新开始' };
     const blocked = blocker();
     if (blocked) return { ok: false, reason: blocked };
+    if (message.action === 'next' && message.emptyLesson && (hasMedia() || loading() || videoNode() || playButton() || questionPresent() || message.emptyInThisFrame && !emptyContent())) {
+      return { ok: false, retry: true, reason: '章节内容已变化，重新检查页面' };
+    }
     if (message.action === 'play') {
       const video = videoNode();
       if (video && !video.ended) {

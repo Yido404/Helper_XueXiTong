@@ -1,6 +1,6 @@
 # Microsoft Edge 安装说明
 
-课序助手 v1.0.2 使用 Manifest V3，功能与 v1.0.1 一致。播放、章节切换、测验跳过、未完成任务弹窗处理和手动标记均保留。
+课序助手 v1.0.3 使用 Manifest V3，保留播放、章节切换、测验跳过、未完成任务弹窗处理和手动标记，并增加“暂无内容”章节自动跳过。
 
 ## 安装
 
@@ -20,11 +20,12 @@ GitHub 下载的文件夹通常为 `browser-extension-main`；单独的 Edge ZIP
 - 默认静音自动播放；自动播放被阻止时，先手动播放一次视频，再启动插件。
 - 需要手动标记时，在插件面板选择标记类型，然后点击网页上的对应控件。
 - 遇到测试只跳过，不答题、不提交；跳过不会使任务点变为已完成。
+- 当前章节明确显示“暂无内容”且约 8 秒未检测到视频、播放器或加载状态时，会自动点击下一节。单纯白屏仍等待识别，避免误跳正在加载的内容。
 - 安装后保留源文件夹。更新时停止插件，覆盖原文件夹，在 `edge://extensions` 点击“重新加载”，然后刷新课程页。
 - Chrome 与 Edge 的运行状态、手动标记和网站授权保存在各自浏览器中，不会自动同步。首次在 Edge 使用时可能需要重新标记。
 
 ## 验证范围
 
-功能脚本与已验证的 v1.0.1 逐字节一致。本次在 Chromium 测试浏览器中检查续播、跨来源 iframe、测验跳过、二次确认和末节停止；当前开发电脑未找到 Microsoft Edge，尚未完成 Edge 本机或真实账号测试。
+已通过 31 项本地回归检查，并在 Chromium 测试浏览器中验证延迟加载的视频、跨来源 iframe、测验跳过、二次确认、空章节跳过和末节停止。暂无内容界面依据截图复现，尚未用本次修复在真实课程账号或 Edge 实机上验证。
 
 参考：[微软扩展迁移说明](https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/port-chrome-extension)、[Edge 本地加载步骤](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading)。
