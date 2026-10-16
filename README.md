@@ -1,6 +1,6 @@
 # Browser Extension · 课序助手
 
-一个适用于 Google Chrome 的课程播放辅助插件，默认适配学习通网页。当前版本：**v1.0.1**。
+一个适用于 **Microsoft Edge / Google Chrome** 的课程播放辅助插件，默认适配学习通网页。当前版本：**v1.0.2**。两个浏览器使用同一份功能代码。
 
 ## 功能
 
@@ -15,16 +15,18 @@
 ## 安装
 
 1. 在本仓库页面点击绿色 **Code → Download ZIP**，下载并解压。
-2. 在 Chrome 地址栏输入 `chrome://extensions`。
-3. 打开右上角的**开发者模式**。
+2. 打开浏览器的扩展管理页面：**Edge 输入 `edge://extensions`，Chrome 输入 `chrome://extensions`**。
+3. 打开**开发者模式**（Edge 通常位于扩展管理页左侧，Chrome 通常位于右上角）。
 4. 点击**加载已解压的扩展程序**，选择解压后的 `browser-extension-main` 文件夹，即直接包含 `manifest.json` 的那一层。
 5. 刷新课程网页，点击浏览器工具栏中的“课序助手”图标，再点击**开始当前课程**。
 
-请保留插件文件夹，安装后不要删除或移动。可以在 Chrome 扩展菜单中将插件固定到工具栏。
+请保留插件文件夹，安装后不要删除或移动。可以在浏览器扩展菜单中将插件固定到工具栏。单独下载的 Edge ZIP 可能解压为 `browser-extension-edge`，请选择直接包含 `manifest.json` 的那一层。详细的 Edge 操作见 [Edge 安装说明](EDGE.md)。
 
 ### 为什么使用解压加载？
 
 GitHub 提供源码下载，不会为插件生成 Chrome 商店的安装证明。Windows 版 Chrome 可能拒绝本地 CRX 并显示 `CRX_REQUIRED_PROOF_MISSING`。请按上面的方法加载源码文件夹。[Chrome 官方说明](https://developer.chrome.com/docs/extensions/how-to/distribute)
+
+Edge 同样使用“加载解压缩的扩展”安装本仓库源码，无需先安装 Chrome，也无需从 Chrome 商店安装。[Microsoft Edge 官方安装说明](https://learn.microsoft.com/en-us/microsoft-edge/extensions/getting-started/extension-sideloading)
 
 ## 使用与手动标记
 
@@ -45,7 +47,9 @@ GitHub 提供源码下载，不会为插件生成 Chrome 商店的安装证明�
 
 ## 更新
 
-停止插件，下载新版源码并覆盖原插件文件夹。在 `chrome://extensions` 中点击插件卡片上的刷新按钮，然后刷新课程网页，再重新开始。GitHub 源码版需要手动更新。
+停止插件，下载新版源码并覆盖原插件文件夹。在 `edge://extensions`（Edge）或 `chrome://extensions`（Chrome）中点击插件卡片上的重新加载／刷新按钮，然后刷新课程网页，再重新开始。GitHub 源码版需要手动更新。
+
+Chrome 与 Edge 的扩展存储相互独立；在 Edge 首次安装时，Chrome 中保存的手动标记不会自动带过来，可以在 Edge 内重新标记。
 
 ## 运行说明
 
@@ -60,5 +64,6 @@ GitHub 提供源码下载，不会为插件生成 Chrome 商店的安装证明�
 
 ## 版本记录
 
+- **v1.0.2**：整理为 Edge / Chrome 共用安装包，补充 Edge 安装与更新说明；功能脚本与 v1.0.1 完全一致。
 - **v1.0.1**：修复跳过测验后被未完成任务提示弹窗卡住的问题，并防止重复确认。
 - **v1.0.0**：支持自动续播、章节切换、测验跳过和手动标记。
